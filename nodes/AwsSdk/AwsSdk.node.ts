@@ -9,7 +9,9 @@ import {
 	NodeOperationError,
 } from 'n8n-workflow';
 
-
+import findNodeModules from 'find-node-modules';
+import { globSync } from 'glob';
+import path from 'path';
 
 type ServiceName = keyof typeof awsSdkClients
 
@@ -17,18 +19,19 @@ type ServiceName = keyof typeof awsSdkClients
 
 export class AwsSdk implements INodeType {
 
-	serviceProperties: INodeProperties[] = []
+	description: INodeTypeDescription
+
 
 	constructor() {
 
-
+		const serviceProperties: INodeProperties[] = []
 		const regionOptions = awsRegions.list().map(({ code, full_name }) => ({
 			name: full_name,
 			value: code,
 		}))
 
 
-		this.serviceProperties.push({
+		serviceProperties.push({
 			displayName: 'Region',
 			name: 'region',
 			type: 'options',
@@ -45,10 +48,10 @@ export class AwsSdk implements INodeType {
 		const services = Object.entries(metadata).map(([service, serviceMetadata]: any) => ({
 			metadataName: service as string,
 			metadataPrefix: serviceMetadata.prefix as string,
-			sdkName: serviceMetadata.name as string,
-		}))
+			sdkName: serviceMetadata.name as ServiceName,
 
-		this.serviceProperties.push({
+		}))
+		serviceProperties.push({
 			displayName: 'Service',
 			name: 'service',
 			type: 'options',
@@ -58,15 +61,19 @@ export class AwsSdk implements INodeType {
 			}),
 			),
 			description: 'Choose which AWS service to use',
-			default: 's3'
+			default: 'S3'
 		},)
 
 		services.forEach(({ metadataName, metadataPrefix, sdkName }) => {
 
-			const service = require(`aws-sdk/clients/${metadataName}.js`)
-			const serviceClient = new service({});
-			console.log(serviceClient)
-			this.serviceProperties.push({
+			const nodeModules = findNodeModules()[0]
+			const apiConfigs = globSync(nodeModules + `/aws-sdk/apis/${metadataPrefix || metadataName}-????-??-??.min.json`).map(function (file) {
+				const apiData = require(path.resolve(file));
+				return apiData
+			});
+
+
+			serviceProperties.push({
 				displayOptions: {
 					show: {
 						service: [sdkName],
@@ -75,27 +82,26 @@ export class AwsSdk implements INodeType {
 				displayName: 'Version for ' + sdkName,
 				name: 'version',
 				type: 'options',
-				options: serviceClient.apiVersions.map((key: string) => ({
-					name: key,
-					value: key,
+				options: apiConfigs.map(({ metadata: { apiVersion } }) => ({
+					name: apiVersion,
+					value: apiVersion,
 				})),
 				description: 'The version of the API to use for this service: ' + sdkName,
-				default: serviceClient.apiVersions[0],
+				default: apiConfigs[0].metadata.apiVersion,
 
 
 			})
 
 
-			serviceClient.apiVersions.forEach((apiVersion: string) => {
+			apiConfigs.forEach(({ metadata, operations }) => {
 
 
-				const { operations } = require(`aws-sdk/apis/${metadataPrefix}-${apiVersion}.min.json`)
 				const serviceVersionOperations = Object.keys(operations)
-				this.serviceProperties.push({
+				serviceProperties.push({
 					displayOptions: {
 						show: {
 							service: [sdkName],
-							version: [apiVersion]
+							version: [metadata.apiVersion]
 						}
 					},
 					displayName: 'Operation for ' + sdkName,
@@ -110,40 +116,39 @@ export class AwsSdk implements INodeType {
 				})
 			})
 		})
+		this.description = {
+			displayName: 'AWS SDK',
+			name: 'AWSSDK',
+			group: ['transform'],
+			version: 1,
+			description: 'Implements the NPM AWS SDK packages; starts with V2 for all services and migrating to V3 for each service over time.',
+			defaults: {
+				name: 'AWS Service Request',
+			},
+			inputs: ['main'],
+			outputs: ['main'],
+			credentials: [
+				{
+					name: 'awsSdkCredentials',
+					required: true,
+				}
+			],
+			properties: [
 
+				...serviceProperties,
+				{
+					displayName: 'Request Input',
+					name: 'requestInput',
+					type: 'json',
+					default: '{}',
+					description: 'The input to the request, this is not typed (yet) so you must provide the correct input for the operation you are using.',
+				},
+			]
+
+		};
 	}
 
 
-	description: INodeTypeDescription = {
-		displayName: 'AWS SDK',
-		name: 'AWSSDK',
-		group: ['transform'],
-		version: 1,
-		description: 'Implements the NPM AWS SDK packages; starts with V2 for all services and migrating to V3 for each service over time.',
-		defaults: {
-			name: 'AWS Service Request',
-		},
-		inputs: ['main'],
-		outputs: ['main'],
-		credentials: [
-			{
-				name: 'awsSdkCredentials',
-				required: true,
-			}
-		],
-		properties: [
-
-			...this.serviceProperties,
-			{
-				displayName: 'Request Input',
-				name: 'requestInput',
-				type: 'json',
-				default: '{}',
-				description: 'The input to the request, this is not typed (yet) so you must provide the correct input for the operation you are using.',
-			},
-		]
-
-	};
 
 	// The function below is responsible for actually doing whatever this node
 	// is supposed to do. In this case, we're just appending the `myString` property
