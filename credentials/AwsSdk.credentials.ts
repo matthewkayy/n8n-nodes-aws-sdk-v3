@@ -3,7 +3,7 @@ import {
 	INodeProperties
 } from 'n8n-workflow';
 
-export class AwsSdkCredentials implements ICredentialType {
+export class AwsSdk implements ICredentialType {
 	name = 'awsSdkCredentials';
 	displayName = 'AWS SDK Credentials';
 	properties: INodeProperties[] = [
