@@ -81188,9 +81188,23 @@ exports[`Extraction Should create a list of services and operations 1`] = `
       "type": "options",
     },
     {
+      "default": true,
+      "description": "If the request has no input (e.g. listBuckets) then set this to false.",
+      "displayName": "Request Has Input",
+      "name": "requestHasInput",
+      "type": "boolean",
+    },
+    {
       "default": "{}",
       "description": "The input to the request, this is not typed (yet) so you must provide the correct input for the operation you are using.",
       "displayName": "Request Input",
+      "displayOptions": {
+        "show": {
+          "requestHasInput": [
+            true,
+          ],
+        },
+      },
       "name": "requestInput",
       "type": "json",
     },

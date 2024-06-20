@@ -22,27 +22,41 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 - Every AWS Service
   - The latest supported Api Version
-    - Every Operation
+    - Every Operation for each Service
 
 ## Credentials
-
-_If users need to authenticate with the app/service, provide details here. You should include prerequisites (such as signing up with the service), available authentication methods, and how to set them up._
+![Add Credentials](images/credentials.png)
+Add your User Access Key and store securely; either a single User for all your actions using this Node, or a single User / credential per Node.
 
 ## Compatibility
 
-_State the minimum n8n version, as well as which versions you test against. You can also include any known version incompatibility issues._
+I'm not sure, only tested with 1.45.1
 
 ## Usage
 
-_This is an optional section. Use it to help users with any difficult or confusing aspects of the node._
+![Actions](images/actions.png)
+It always presents these top 15 actions, click on any of them to bring in the Node and select a Service
 
-_By the time users are looking for community nodes, they probably already know n8n basics. But if you expect new users, you can link to the [Try it out](https://docs.n8n.io/try-it-out/) documentation to help them get started._
+![Running it](images/testRun.png)
+Select your region, service, version, then operation. The list is ginormous (the json config is 83k lines) so it might be a bit slow on your browser.
+
+![No input](images/listBuckets.png)
+The HasInput switch should be off when the Operation doesn't have arguments or it will error (e.g. `s3.listBuckets`).
+
+![Editing the input](images/editExpression.png)
+The Input JSON is untyped so you need to ensure it's correct as per the [AWS SDK V2 documentation](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html) arguments for the SDK.
+
+![Error cases](images/handleError.png)
+The Node passes AWS errors back up as Code or Message, so you can act on those. It'll either throw or catch, up to you. If it's an auth error check your Role Permissions.
 
 ## Resources
 
 - [n8n community nodes documentation](https://docs.n8n.io/integrations/community-nodes/)
-- _Link to app/service documentation._
+
+
+## Testing
+`npm test` will validate the config is still correct for changing over V2 => V3 services.
 
 ## Version history
 
-_This is another optional section. If your node has multiple versions, include a short description of available versions and what changed, as well as any compatibility impact._
+This is the first version, over time I might switch individual services to the AWS SDK V3 and add Input types for more popular services.
