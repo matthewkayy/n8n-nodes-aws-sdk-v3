@@ -15,7 +15,7 @@ type ServiceName = keyof typeof awsSdkClients
 
 
 
-export class AwsSdk implements INodeType {
+export class AWSSDK implements INodeType {
 
 	description: INodeTypeDescription = {
 		displayName: 'AWS SDK',
@@ -42,19 +42,19 @@ export class AwsSdk implements INodeType {
 				name: 'requestHasInput',
 				type: 'boolean',
 				default: true,
-				description: 'If the request has no input (e.g. listBuckets) then set this to false.'
+				description: 'Whether the request has no input (e.g. listBuckets) then set this to false',
 			},
 			{
+				displayName: 'Request Input',
 				displayOptions: {
 					show: {
 						requestHasInput: [true]
 					}
 				},
-				displayName: 'Request Input',
 				name: 'requestInput',
 				type: 'json',
 				default: '{}',
-				description: 'The input to the request, this is not typed (yet) so you must provide the correct input for the operation you are using.',
+				description: 'The input to the request, this is not typed (yet) so you must provide the correct input for the operation you are using',
 			},
 		]
 
