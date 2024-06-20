@@ -37,6 +37,8 @@ I'm not sure, only tested with 1.45.1
 ![Actions](images/actions.png)
 It always presents these top 15 actions, click on any of them to bring in the Node and select a Service
 
+![Builder](images/builder.png)
+
 ![Running it](images/testRun.png)
 Select your region, service, version, then operation. The list is ginormous (the json config is 83k lines) so it might be a bit slow on your browser.
 
@@ -47,7 +49,7 @@ The HasInput switch should be off when the Operation doesn't have arguments or i
 The Input JSON is untyped so you need to ensure it's correct as per the [AWS SDK V2 documentation](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html) arguments for the SDK.
 
 ![Error cases](images/handleError.png)
-The Node passes AWS errors back up as Code or Message, so you can act on those. It'll either throw or catch, up to you. If it's an auth error check your Role Permissions.
+The Node passes AWS errors back up as Code or Message, so you can act on those. It'll either throw or catch, up to you. If it's an auth error check your Role Permissions. It'll also conveniently log any errors to console too.
 
 ## Resources
 
