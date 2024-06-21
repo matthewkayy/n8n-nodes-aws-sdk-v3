@@ -18,6 +18,8 @@ This AWS SDK Node isn't affiliated or endorsed by AWS. It starts with the latest
 
 Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) in the n8n community nodes documentation.
 
+Use the package at (here)[https://www.npmjs.com/package/n8n-nodes-aws-sdk-v3].
+
 ## Operations
 
 - Every AWS Service
