@@ -82,7 +82,7 @@ export class AWSSDK implements INodeType {
 				const region = this.getNodeParameter('region', itemIndex) as string
 				const service = this.getNodeParameter('service', itemIndex) as ServiceName
 				const OperationName = this.getNodeParameter('operation', itemIndex) as string
-				const credentials = await this.getCredentials('awsSdkCredentials')
+				const credentials = await this.getCredentials('awsSdkCredentialsApi')
 				const requestHasInput = this.getNodeParameter('requestHasInput', itemIndex) as boolean
 
 				const operationName = OperationName.charAt(0).toLowerCase() + OperationName.slice(1)
