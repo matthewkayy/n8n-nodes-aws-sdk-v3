@@ -30,7 +30,7 @@ export class AWSSDK implements INodeType {
 		outputs: ['main'],
 		credentials: [
 			{
-				name: 'awsSdkCredentials',
+				name: 'awsSdkCredentialsApi',
 				required: true,
 			}
 		],

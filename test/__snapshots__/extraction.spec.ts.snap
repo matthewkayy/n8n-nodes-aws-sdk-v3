@@ -4,7 +4,7 @@ exports[`Extraction Should create a list of services and operations 1`] = `
 {
   "credentials": [
     {
-      "name": "awsSdkCredentials",
+      "name": "awsSdkCredentialsApi",
       "required": true,
     },
   ],
@@ -81189,14 +81189,14 @@ exports[`Extraction Should create a list of services and operations 1`] = `
     },
     {
       "default": true,
-      "description": "If the request has no input (e.g. listBuckets) then set this to false.",
+      "description": "Whether the request has no input (e.g. listBuckets) then set this to false",
       "displayName": "Request Has Input",
       "name": "requestHasInput",
       "type": "boolean",
     },
     {
       "default": "{}",
-      "description": "The input to the request, this is not typed (yet) so you must provide the correct input for the operation you are using.",
+      "description": "The input to the request, this is not typed (yet) so you must provide the correct input for the operation you are using",
       "displayName": "Request Input",
       "displayOptions": {
         "show": {
