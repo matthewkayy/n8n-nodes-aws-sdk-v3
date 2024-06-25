@@ -33,7 +33,7 @@ Add your User Access Key and store securely; either a single User for all your a
 
 ## Compatibility
 
-I'm not sure, only tested with `n8n v1.45.1`.
+I'm not sure, only tested with `n8n v1.45.1`. Due to intricate linting rules, only version 3.0.0 upwards of this package works when pulled as a Community Node (you can use V1 and V2 as local/Custom Node packages).
 
 ## Usage
 
