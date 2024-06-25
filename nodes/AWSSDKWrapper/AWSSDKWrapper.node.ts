@@ -11,18 +11,16 @@ import {
 
 import serviceProperties from './properties.json';
 
-type ServiceName = keyof typeof awsSdkClients
+type ServiceName = keyof typeof awsSdkClients;
 
-
-
-export class AWSSDK implements INodeType {
-
+export class AWSSDKWrapper implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'AWS SDK',
-		name: 'AWSSDK',
+		displayName: 'AWS SDK Wrapper',
+		name: 'AWSSDKWrapper',
 		group: ['transform'],
 		version: 1,
-		description: 'Implements the NPM AWS SDK packages; starts with V2 for all services and migrating to V3 for each service over time.',
+		description:
+			'Implements the NPM AWS SDK packages; starts with V2 for all services and migrating to V3 for each service over time.',
 		defaults: {
 			name: 'AWS Service Request',
 		},
@@ -30,13 +28,12 @@ export class AWSSDK implements INodeType {
 		outputs: ['main'],
 		credentials: [
 			{
-				name: 'awsSdkCredentialsApi',
+				name: 'awsSdkWrapperCredentialsApi',
 				required: true,
-			}
+			},
 		],
 		properties: [
-
-			...serviceProperties as INodeProperties[],
+			...(serviceProperties as INodeProperties[]),
 			{
 				displayName: 'Request Has Input',
 				name: 'requestHasInput',
@@ -48,19 +45,17 @@ export class AWSSDK implements INodeType {
 				displayName: 'Request Input',
 				displayOptions: {
 					show: {
-						requestHasInput: [true]
-					}
+						requestHasInput: [true],
+					},
 				},
 				name: 'requestInput',
 				type: 'json',
 				default: '{}',
-				description: 'The input to the request, this is not typed (yet) so you must provide the correct input for the operation you are using',
+				description:
+					'The input to the request, this is not typed (yet) so you must provide the correct input for the operation you are using',
 			},
-		]
-
+		],
 	};
-
-
 
 	// The function below is responsible for actually doing whatever this node
 	// is supposed to do. In this case, we're just appending the `myString` property
@@ -69,9 +64,6 @@ export class AWSSDK implements INodeType {
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const inputItems = this.getInputData();
 
-
-
-
 		const resultItems: INodeExecutionData[] = [];
 
 		// Iterates over all input items and add the key "myString" with the
@@ -79,59 +71,71 @@ export class AWSSDK implements INodeType {
 		// (This could be a different value for each item in case it contains an expression)
 		for (let itemIndex = 0; itemIndex < inputItems.length; itemIndex++) {
 			try {
-				const region = this.getNodeParameter('region', itemIndex) as string
-				const service = this.getNodeParameter('service', itemIndex) as ServiceName
-				const OperationName = this.getNodeParameter('operation', itemIndex) as string
-				const credentials = await this.getCredentials('awsSdkCredentialsApi')
-				const requestHasInput = this.getNodeParameter('requestHasInput', itemIndex) as boolean
+				const region = this.getNodeParameter('region', itemIndex) as string;
+				const service = this.getNodeParameter('service', itemIndex) as ServiceName;
+				const OperationName = this.getNodeParameter('operation', itemIndex) as string;
+				const credentials = await this.getCredentials('awsSdkWrapperCredentialsApi');
+				const requestHasInput = this.getNodeParameter('requestHasInput', itemIndex) as boolean;
 
-				const operationName = OperationName.charAt(0).toLowerCase() + OperationName.slice(1)
+				const operationName = OperationName.charAt(0).toLowerCase() + OperationName.slice(1);
 
 				if (typeof awsSdk[service] !== 'function') {
-					throw new NodeOperationError(this.getNode(), `The service ${service} is not a valid service.`);
+					throw new NodeOperationError(
+						this.getNode(),
+						`The service ${service} is not a valid service.`,
+					);
 				}
 
-
-				if (typeof credentials.accessKeyId !== 'string' || credentials.accessKeyId === '' || typeof credentials.secretAccessKey !== 'string' || credentials.secretAccessKey === '') {
-					throw new NodeOperationError(this.getNode(), 'No credentials got returned. Please make sure to have set the credentials in the credentials of the node.');
+				if (
+					typeof credentials.accessKeyId !== 'string' ||
+					credentials.accessKeyId === '' ||
+					typeof credentials.secretAccessKey !== 'string' ||
+					credentials.secretAccessKey === ''
+				) {
+					throw new NodeOperationError(
+						this.getNode(),
+						'No credentials got returned. Please make sure to have set the credentials in the credentials of the node.',
+					);
 				}
 
-				const sessionToken = typeof credentials.sessionToken === 'string' && credentials.sessionToken !== '' ? credentials.sessionToken : undefined
+				const sessionToken =
+					typeof credentials.sessionToken === 'string' && credentials.sessionToken !== ''
+						? credentials.sessionToken
+						: undefined;
 
 				const serviceCredentials = new awsSdk.Credentials({
 					accessKeyId: credentials.accessKeyId,
 					secretAccessKey: credentials.secretAccessKey,
-					sessionToken
-				})
-
+					sessionToken,
+				});
 
 				const serviceClient = new awsSdk[service]({
 					region,
-					credentials: serviceCredentials
-				})
+					credentials: serviceCredentials,
+				});
 
 				//@ts-ignore
 				if (typeof serviceClient[operationName] !== 'function') {
-					throw new NodeOperationError(this.getNode(), `The operation ${operationName} is not a valid operation for the service ${service}.`);
+					throw new NodeOperationError(
+						this.getNode(),
+						`The operation ${operationName} is not a valid operation for the service ${service}.`,
+					);
 				}
 
-				let operationInput: Record<string, any> | undefined = undefined
+				let operationInput: Record<string, any> | undefined = undefined;
 
 				if (requestHasInput) {
-					const requestInput = this.getNodeParameter('requestInput', itemIndex) as string
+					const requestInput = this.getNodeParameter('requestInput', itemIndex) as string;
 					if (requestInput) {
-						operationInput = JSON.parse(requestInput)
+						operationInput = JSON.parse(requestInput);
 					}
 				}
 
-
 				//@ts-ignore
-				const response = await serviceClient[operationName](operationInput).promise()
+				const response = await serviceClient[operationName](operationInput).promise();
 				resultItems.push({ json: response, pairedItem: itemIndex });
-
-
 			} catch (error: any) {
-				console.error(error)
+				console.error(error);
 				// an aws api error will contain a 'code' property and might not have a message
 
 				if (error.code) {
@@ -141,7 +145,11 @@ export class AWSSDK implements INodeType {
 				// This node should never fail but we want to showcase how
 				// to handle errors.
 				if (this.continueOnFail()) {
-					resultItems.push({ json: this.getInputData(itemIndex)[0].json, error, pairedItem: itemIndex });
+					resultItems.push({
+						json: this.getInputData(itemIndex)[0].json,
+						error,
+						pairedItem: itemIndex,
+					});
 				} else {
 					// Adding `itemIndex` allows other workflows to handle this error
 					if (error.context) {

@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-aws-sdk-v3",
-	"version": "3.0.1",
+	"version": "3.0.3",
 	"description": "Wrapper for the AWS SDK for n8n, contains every service and operation in a very utilitarian way",
 	"keywords": [
 		"n8n-community-node-package",
@@ -35,10 +35,10 @@
 	"n8n": {
 		"n8nNodesApiVersion": 1,
 		"credentials": [
-			"dist/credentials/AWSSDKApi.credentials.js"
+			"dist/credentials/AWSSDKWrapperApi.credentials.js"
 		],
 		"nodes": [
-			"dist/nodes/AWSSDK/AWSSDK.node.js"
+			"dist/nodes/AWSSDKWrapper/AWSSDKWrapper.node.js"
 		]
 	},
 	"devDependencies": {

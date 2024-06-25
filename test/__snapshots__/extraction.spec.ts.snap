@@ -4,7 +4,7 @@ exports[`Extraction Should create a list of services and operations 1`] = `
 {
   "credentials": [
     {
-      "name": "awsSdkCredentialsApi",
+      "name": "awsSdkWrapperCredentialsApi",
       "required": true,
     },
   ],
@@ -12,14 +12,14 @@ exports[`Extraction Should create a list of services and operations 1`] = `
     "name": "AWS Service Request",
   },
   "description": "Implements the NPM AWS SDK packages; starts with V2 for all services and migrating to V3 for each service over time.",
-  "displayName": "AWS SDK",
+  "displayName": "AWS SDK Wrapper",
   "group": [
     "transform",
   ],
   "inputs": [
     "main",
   ],
-  "name": "AWSSDK",
+  "name": "AWSSDKWrapper",
   "outputs": [
     "main",
   ],
