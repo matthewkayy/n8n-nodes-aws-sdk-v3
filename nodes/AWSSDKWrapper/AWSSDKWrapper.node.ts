@@ -19,6 +19,7 @@ export class AWSSDKWrapper implements INodeType {
 		name: 'AWSSDKWrapper',
 		group: ['transform'],
 		version: 1,
+		icon: 'file:awssdkwapper.svg',
 		description:
 			'Implements the NPM AWS SDK packages; starts with V2 for all services and migrating to V3 for each service over time.',
 		defaults: {
